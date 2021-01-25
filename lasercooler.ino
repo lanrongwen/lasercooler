@@ -12,9 +12,9 @@ const int startButtonPin = 2;
 
 
 enum coolerRunStates{
-  RUNCOOLER,
+  RUNCOOLERACTIVE,
+  RESTCOOLER,
   STOPCOOLER,
-  COOLING,
   COASTING
 };
 
@@ -22,9 +22,13 @@ enum coolerRunStates{
 enum coolerRunStates currentState = STOPCOOLER;
 int currentStartButtonState;
 int lastStartButtonState;
-bool switchState = false;
+bool userSwitchState = false;
 bool stateStarted = false;
-
+unsigned long stateStartTime = 0;
+unsigned long currentTime = 0;
+unsigned long currentStateEndTime = 0;
+const unsigned long ACTIVECOOLERTIMEOUT = 15 * 60 * 1000; //(15 minutes)
+const unsigned long RESTCOOLERTIMEOUT = 4 * 60 * 1000; //(4 minutes)
 
 void setup() {
   if(!Serial.available()){
@@ -61,23 +65,25 @@ void loop() {
     if (currentStartButtonState == LOW){
       Serial.println("Will Change State");
       lastStartButtonState = currentStartButtonState;
-      switchState = true;
+      userSwitchState = true;
     }
   }
   else{
-    switchState = false;
+    userSwitchState = false;
   }
   lastStartButtonState = currentStartButtonState;
 
   switch(currentState){
-    case RUNCOOLER:
-      if (switchState == true){
+    case RUNCOOLERACTIVE:
+      if (userSwitchState == true){
         Serial.println("Will switch to STOPCOOLER");
         currentState = STOPCOOLER;
         stateStarted = false;
       }
       else if (stateStarted == false){
-        Serial.println("Starting Cooler...");
+        Serial.println("Starting Active Cooler...");
+        stateStartTime = millis();
+        currentStateEndTime = stateStartTime + ACTIVECOOLERTIMEOUT;
         digitalWrite(fanPin, LOW);
         digitalWrite(compressorPin, LOW);
         analogWrite(ledRedPin, 0);
@@ -86,11 +92,46 @@ void loop() {
         stateStarted = true;
         Serial.println("Cooler Started.");
       }
+      else{
+        currentTime = millis();
+        if (currentTime < currentStateEndTime){
+          Serial.println("Hit maximum active cooler time limit, will go to RESTCOOLER.")
+          currentState = RESTCOOLER;
+          stateStarted = false;
+        }
+      }
+      break;
+    case RESTCOOLER:
+      if (userSwitchState == true){
+        Serial.println("Will switch to STOPCOOLER");
+        currentState = STOPCOOLER;
+        stateStarted = false;
+      }
+      else if (stateStarted == false){
+        Serial.println("Starting Cooler...");
+        stateStartTime = millis();
+        currentStateEndTime = stateStartTime + RESTCOOLERTIMEOUT;
+        digitalWrite(fanPin, LOW);
+        digitalWrite(compressorPin, HIGH);
+        analogWrite(ledRedPin, 0);
+        analogWrite(ledBluePin, 125);
+        analogWrite(ledGreenPin, 0);
+        stateStarted = true;
+        Serial.println("Cooler Started.");
+      }
+      else{
+        currentTime = millis();
+        if (currentTime < currentStateEndTime){
+          Serial.println("Hit maximum rest cooler time limit, will go to RUNCOOLERACTIVE.")
+          currentState = RUNCOOLERACTIVE;
+          stateStarted = false;
+        }
+      }
       break;
     case STOPCOOLER:
-      if (switchState == true){
-        Serial.println("Will switch to RUNCOOLER");
-        currentState = RUNCOOLER;
+      if (userSwitchState == true){
+        Serial.println("Will switch to RUNCOOLERACTIVE");
+        currentState = RUNCOOLERACTIVE;
         stateStarted = false;
       }
       else if (stateStarted == false){
@@ -103,9 +144,6 @@ void loop() {
         stateStarted = true;
         Serial.println("Cooler Stopped.");
       }
-      break;
-    case COOLING:
-      Serial.println("Cooling Here.");
       break;
     case COASTING:
       Serial.println("Coasting Here.");
