@@ -8,10 +8,10 @@ This project is starting simple, using a spare Arduino Mega and relay board, it 
    * White - Just powered on, not running yet.
    * Red - Stopped
    * Blue - Cooling
+* LCD Display with Current temperatures and state of the cooler.
+* 2 Sensors to pick up the temperatures.
 * A Start/Stop button
 * A pair of relays to power the compressor and compressor fan.
 
 ### Planned Enhancements
-* Temperature sensors that will allow it to automatically control the cooling cycles.
-* LCD to display the temps and status updates.
 * Docs and how-tos on how I build the system (may even get fancy enough to add some photos and diagrams.)
