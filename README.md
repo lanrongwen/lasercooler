@@ -21,3 +21,10 @@ I found a table top ice maker on clearance and saw other people talk about using
 
 ### How To Build
 1. [Parts List](/physicalBuild/ComponentList)
+1. [Build Steps](/physicalBuild/Build)
+
+### Future Enhancements
+* Add Heater Control for the cold winter months to bring it up to operating temperature.
+
+### Parting Notes:
+This is a hobby only, but I'm always open to improvements and making the code better.  Feel free to help contribute back in.  Happy Lasering!
