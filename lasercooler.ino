@@ -22,7 +22,7 @@ const int LCD_UNUSED_PIN = 6;
 uint8_t compressorSensor[] = {40, 26, 187, 7, 214, 1, 60, 34};
 uint8_t reservoirSensor[] = {40, 161, 144, 7, 214, 1, 60, 85};
 float compressorTemp = 0;
-float resevoirTemp = 0;
+float reservoirTemp = 0;
 
 //colors
 uint8_t white[] = {255, 255, 255};  
@@ -66,6 +66,17 @@ const float COOLERLOWTEMP = 60;
 void setup() {
   if(!Serial.available()){
     Serial.begin(9600);
+  }
+
+  Serial.println("Reporting DS ID's");
+  while(ds.selectNext()){
+    uint8_t address[8];
+    ds.getAddress(address);
+    for (uint8_t i = 0; i < 8; i++) {
+        Serial.print(" ");
+        Serial.print(address[i]);
+    }
+    Serial.println();
   }
 
   Serial.println("Setting up LCD");
@@ -130,7 +141,7 @@ void ledSetColor(uint8_t color[]){
 
 void readTempSensors(){
   tempSensors.select(reservoirSensor);
-  resevoirTemp = tempSensors.getTempF();
+  reservoirTemp = tempSensors.getTempF();
   tempSensors.select(compressorSensor);
   compressorTemp = tempSensors.getTempF();
 }
@@ -157,7 +168,7 @@ void readButton(){
 
 void refreshDisplays(){
   lcdClearScreen(); 
-    lcd.println(tempString + "R:" + resevoirTemp + " C:" + compressorTemp );
+    lcd.println(tempString + "R:" + reservoirTemp + " C:" + compressorTemp );
     lcd.print(displayMessage);
     lcdRefreshTime = millis();
 }
@@ -197,7 +208,7 @@ void loop() {
         Serial.println("Cooler Started.");
       }
       else{
-        if (resevoirTemp < COOLERLOWTEMP){
+        if (reservoirTemp < COOLERLOWTEMP){
           Serial.println("Cooler has hit is cool point, will now let it coast...");
           currentState = COASTING;
           stateStarted = false;
@@ -274,7 +285,7 @@ void loop() {
         Serial.println("Cooler Is in Coast.");
       }
       else{
-        if (resevoirTemp > COOLERHIGHTEMP){
+        if (reservoirTemp > COOLERHIGHTEMP){
           Serial.println("Cooler has hit is hot point, will now turn on the cooler...");
           currentState = RUNCOOLER;
           stateStarted = false;
