@@ -20,8 +20,8 @@ Buying the K40 was a big investment as far as hobbies for me.  I wanted a proper
 I found a table top ice maker on clearance and saw other people talk about using them.  I had a bunch of components laying around, and decided to put the two together into this.  I also added a few things just for the fun of it.
 
 ### How To Build
-1. [Parts List](/physicalBuild/ComponentList)
-1. [Build Steps](/physicalBuild/Build)
+1. [Parts List](/physicalBuild/ComponentList.md)
+1. [Build Steps](/physicalBuild/Build.md)
 
 ### Future Enhancements
 * Add Heater Control for the cold winter months to bring it up to operating temperature.
